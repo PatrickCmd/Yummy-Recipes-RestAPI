@@ -4,6 +4,7 @@ from flask_api import FlaskAPI
 from flask_sqlalchemy import SQLAlchemy
 from flask import request, jsonify, abort, make_response
 from werkzeug.security import generate_password_hash, check_password_hash
+from func_tools import wraps
 import uuid
 import jwt
 import datetime
@@ -59,7 +60,28 @@ def create_app(config_name):
         response = jsonify({'users': user_list}), 200
         return response
 
-    
+    # decorator to prevent unauthenticated users from accessing 
+    # the endpoints
+    def token_required(f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            token = None
+            if 'x-access-token' in request.headers:
+                token = request.headers['x-access-token']
+            
+            if not token:
+                return jsonify({'message': 'Token is missing'}), 401
+
+            try:
+                data = jwt.decode(token, app.config['SECRET_KEY'])
+                print(data)
+                current_user = User.query.filter_by(public_id=\
+                                            data['public_id']).first()
+            except:
+                return jsonify({'message': 'Token is invalid'}), 401
+            return f(current_user, *args, **kwargs)
+        return decorated
+
     @app.route('/auth/login')
     def login():
         '''logs in user into app'''
