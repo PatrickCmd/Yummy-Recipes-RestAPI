@@ -2,9 +2,11 @@
 
 from flask_api import FlaskAPI
 from flask_sqlalchemy import SQLAlchemy
-from flask import request, jsonify, abort
+from flask import request, jsonify, abort, make_response
 from werkzeug.security import generate_password_hash, check_password_hash
 import uuid
+import jwt
+import datetime
 
 # local import
 from instance.config import app_config
@@ -27,7 +29,6 @@ def create_app(config_name):
         data = request.get_json(force=True)
 
         if data:
-            print(data)
             hashed_password = generate_password_hash(data['password'], 
                                                     method='sha256')
             new_user = User(public_id=str(uuid.uuid4()), email=data['email'], 
@@ -41,8 +42,49 @@ def create_app(config_name):
             response = jsonify('message', 'New user not created!')
         return response
     
-    @app.route('/auth/login', methods=['POST'])
+    @app.route('/users', methods=['GET'])
+    def get_users():
+        users = User.get_all()
+        print(users)
+        user_list = []
+
+        for user in users:
+            user_data = {}
+            user_data['id'] = user.id
+            user_data['public_id'] = user.public_id
+            user_data['email'] = user.email
+            user_data['first_name'] = user.first_name
+            user_data['last_name'] = user.last_name
+            user_list.append(user_data)
+        response = jsonify({'users': user_list}), 200
+        return response
+
+    
+    @app.route('/auth/login')
     def login():
-        pass
+        '''logs in user into app'''
+        auth = request.authorization
+        print(auth)
+        if not auth or not auth.username or not auth.password:
+            return make_response('Could not verify user' , 401, 
+                                  {'WWW-Authenticate': 'Basic realm=\
+                                  "Login required"'})
+        user = User.query.filter_by(email=auth.username).first()
+
+        if not user:
+            return make_response('Could not verify user' , 401, 
+                                 {'WWW-Authenticate': 'Basic realm=\
+                                 "Login required"'})
+
+        if check_password_hash(user.password, auth.password):
+            # generating tokens
+            token = jwt.encode({'public_id': user.public_id, 
+                                'exp': datetime.datetime.utcnow()+
+                                datetime.timedelta(minutes=30)}, 
+                                app.config['SECRET_KEY'])
+            return jsonify({'token': token.decode('UTF-8')})
+        return make_response('Could not verify user' , 401, 
+                                  {'WWW-Authenticate': 'Basic realm=\
+                                  "Login required"'})
 
     return app
