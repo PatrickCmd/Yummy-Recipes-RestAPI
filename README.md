@@ -1,4 +1,6 @@
 # Yummy-Recipes-RestAPI
+[![Build Status](https://travis-ci.org/PatrickCmd/Yummy-Recipes-RestAPI.svg?branch=recipe-category)](https://travis-ci.org/PatrickCmd/Yummy-Recipes-RestAPI)
+[![Coverage Status](https://coveralls.io/repos/github/PatrickCmd/Yummy-Recipes-RestAPI/badge.svg?branch=master)](https://coveralls.io/github/PatrickCmd/Yummy-Recipes-RestAPI?branch=master)
 Yummy recipes app is an application that allows users  to create, save and share meeting the needs of keeping track of awesome food recipes.
 
 ## Requirements(Building Blocks)
@@ -26,6 +28,20 @@ Then install all the necessary dependencies
 pip install -r requirements.txt
 ```
 
+## Set environment varibles
+### On windows
+At the terminal or console type
+```
+set APP_SETTINGS=development
+set DATABASE_URL=postgresql://postgres:@localhost/yummy_restapi
+```
+### On linux/Ubuntu or Mac
+At the terminal or console type
+```
+export APP_SETTINGS=development
+export DATABASE_URL=postgresql://postgres:@localhost/yummy_restapi
+```
+
 ## Initialize the database and create database tables
 ```
 $ python manage.py db init
@@ -38,6 +54,20 @@ At the terminal or console type
 ```
 python run.py
 ```
+
+*You could use a GUI platform like [postman](https://www.getpostman.com/) to make requests to and fro the api.*
+
+## Functionality(ENDPOINTS)
+Endpoint | Functionality| Access
+------------ | ------------- | ------------- 
+POST /auth/register | Registers a user | PUBLIC
+POST /auth/login |Logs a user in | PUBLIC
+POST /recipe_category | Creates a new recipe category | PRIVATE
+GET /recipe_category | Lists all created recipe categories | PRIVATE
+GET /recipe_category/id | Gets a single recipe category with the suppled id | PRIVATE
+PUT /recipe_category/id | Updates recipe category with the suppled id | PRIVATE
+DELETE /recipe_category/id | Deletes recipe_category with the suppled id | PRIVATE
+
 To run tests run this command at the console/terminal
 ```
 nosetests
