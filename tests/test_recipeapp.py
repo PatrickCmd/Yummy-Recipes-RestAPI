@@ -42,6 +42,46 @@ class RecipeAppTestCase(unittest.TestCase):
         response = self.client().post('/auth/register', data=self.user)
         response = self.client().get('/users')
         self.assertEqual(response.status_code, 200)
+    
+    '''
+    def test_user_creates_recipe_category(self):
+        response = self.client().post('/auth/register', data=self.user)
+        login_user = json.dumps({"username": "pwalukagga@gmail.com", 
+                                 "password": "telnetcmd123"})
+        response_login = self.client().get('/auth/login', 
+                                            data=login_user)
+        print(response_login)
+        # getting token after login
+        token = json.loads(response_login)["token"]
+        category_data = json.dumps({"name": "Breakfast", 
+                                     "description": "How to make breakfast"})
+        response = self.client().post('/recipe_category', 
+                                      data=category_data)
+        self.assertEqual(response.status_code, 201)
+        self.assertIn('New recipe category created!', 
+                       str(response.data))'''
+    
+    def test_user_fails_to_creates_recipe_category_if_not_loggedin(self):
+        category_data = json.dumps({"name": "Breakfast", 
+                                     "description": "How to make breakfast"})
+        response = self.client().post('/recipe_category', 
+                                      data=category_data)
+        self.assertEqual(response.status_code, 401)
+        self.assertIn('Token is missing', str(response.data))
+    
+    def test_user_fails_to_retrieve_recipe_categories_if_not_loggedin(self):
+        response = self.client().get('/recipe_category')
+        self.assertEqual(response.status_code, 401)
+        self.assertIn('Token is missing', str(response.data))
+    
+    def test_user_fails_to_retrieve_recipe_category_if_not_loggedin(self):
+        category_data = json.dumps({"name": "Breakfast", 
+                                     "description": "How to make breakfast"})
+        response = self.client().post('/recipe_category', 
+                                      data=category_data)
+        response = self.client().get('/recipe_category/1')
+        self.assertEqual(response.status_code, 401)
+        self.assertIn('Token is missing', str(response.data))
 
 if __name__ == '__main__':
     unittest.main()
