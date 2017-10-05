@@ -4,7 +4,7 @@ from flask_api import FlaskAPI
 from flask_sqlalchemy import SQLAlchemy
 from flask import request, jsonify, abort, make_response
 from werkzeug.security import generate_password_hash, check_password_hash
-from func_tools import wraps
+from functools import wraps
 import uuid
 import jwt
 import datetime
@@ -17,7 +17,7 @@ db = SQLAlchemy()
 
 
 def create_app(config_name):
-    from recipe_app.models import User
+    from recipe_app.models import User, RecipeCategory
 
     app = FlaskAPI(__name__, instance_relative_config=True)
     app.config.from_object(app_config[config_name])
@@ -81,6 +81,70 @@ def create_app(config_name):
                 return jsonify({'message': 'Token is invalid'}), 401
             return f(current_user, *args, **kwargs)
         return decorated
+
+    # user create recipe category
+    @app.route('/recipe_category', methods=['POST'])
+    @token_required
+    def create_category(current_user):
+        data = request.get_json(force=True)
+
+        if data:
+            category = RecipeCategory(name=data['name'], 
+                                       description=data['description'], 
+                                       user_id=current_user.id)
+            category.save()
+            response = \
+            jsonify({'message': 'New recipe category created!'}), 201
+        else:
+            response = \
+            jsonify({'message': 'New recipe category not created!'}), 201
+        return response
+    
+    # user retrieves recipe categories
+    @app.route('/recipe_category', methods=['GET'])
+    @token_required
+    def get_all_recipe_categories(current_user):
+        '''Returns recipes of current logged in user'''
+        categories = RecipeCategory.query.\
+                                         filter_by(user_id=\
+                                         current_user.id).all()
+        category_list = []
+        for category in categories:
+            category_data = {}
+            category_data['id'] = category.id
+            category_data['name'] = category.name
+            category_data['description'] = category.description
+            category_list.append(category_data)
+        return jsonify({'recipe categories': category_list}), 200
+        
+    
+    # get single recipe category
+    @app.route('/recipe_category/<cat_id>', methods=['GET'])
+    @token_required
+    def get_one_category(current_user, cat_id):
+        category = RecipeCategory.query.filter_by(id=cat_id, 
+                                                  user_id=\
+                                                  current_user.id).\
+                                                  first()
+        if not category:
+            return jsonify({'message': 'No category found'}), 200
+        category_data = {}
+        category_data['id'] = category.id
+        category_data['name'] = category.name
+        category_data['description'] = category.description
+        return jsonify(category_data), 200
+    
+    # user editd recipe category
+    @app.route('/recipe_category/<cat_id>', methods=['PUT'])
+    @token_required
+    def edit_recipe_category(current_user, cat_id):
+        pass
+    
+    # delete recipe category
+    @app.route('/recipe_category/<cat_id>', methods=['DELETE'])
+    @token_required
+    def delete_recipe_category(current_user, cat_id):
+        pass
 
     @app.route('/auth/login')
     def login():
