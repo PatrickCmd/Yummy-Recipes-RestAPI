@@ -37,6 +37,47 @@ class RecipeAppTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 201)
         self.assertIn('New user created!', str(response.data))
     
+    def test_user_registration_fails_with_invalid_email(self):
+        '''Test API can register user (POST request)'''
+        user = json.dumps({"first_name": "Patrick",
+                                "last_name": "Walukagga",
+                                "email": "pwalukaggagmail.com",
+                                "password": "telnetcmd123"})
+        response = self.client().post('/auth/register', data=user)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Invalid Email', str(response.data))
+    
+    def test_user_registration_fails_with_short_password(self):
+        '''Test API can register user (POST request)'''
+        user = json.dumps({"first_name": "Patrick",
+                                "last_name": "Walukagga",
+                                "email": "pwalukagga@gmail.com",
+                                "password": "teln"})
+        response = self.client().post('/auth/register', data=user)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Password is too short', str(response.data))
+    
+    def test_user_registration_fails_with_empty_credintials(self):
+        '''Test API can register user (POST request)'''
+        user = json.dumps({"first_name": "",
+                                "last_name": "",
+                                "email": "",
+                                "password": ""})
+        response = self.client().post('/auth/register', data=user)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('All fields must be filled', str(response.data))
+    
+    def test_user_registration_fails_with_same_email(self):
+        '''Test API can register user (POST request)'''
+        response = self.client().post('/auth/register', data=self.user)
+        user = json.dumps({"first_name": "Patrick",
+                                "last_name": "Walukagga",
+                                "email": "pwalukagga@gmail.com",
+                                "password": "telnetcmd123"})
+        response = self.client().post('/auth/register', data=user)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('User already exists', str(response.data))
+    
     def test_get_users(self):
         '''Tests that users are return successfully'''
         response = self.client().post('/auth/register', data=self.user)
@@ -80,6 +121,27 @@ class RecipeAppTestCase(unittest.TestCase):
         response = self.client().post('/recipe_category', 
                                       data=category_data)
         response = self.client().get('/recipe_category/1')
+        self.assertEqual(response.status_code, 401)
+        self.assertIn('Token is missing', str(response.data))
+    
+    def test_user_fails_to_edit_recipe_category_if_not_loggedin(self):
+        category_data = json.dumps({"name": "Breakfast", 
+                                     "description": "How to make breakfast"})
+        response = self.client().post('/recipe_category', 
+                                      data=category_data)
+        category_data = json.dumps({"name": "Breakfast", 
+                                     "description": "How to make breakfast"})
+        response = self.client().put('/recipe_category/1', 
+                                      data=category_data)
+        self.assertEqual(response.status_code, 401)
+        self.assertIn('Token is missing', str(response.data))
+    
+    def test_user_fails_to_delete_recipe_category_if_not_loggedin(self):
+        category_data = json.dumps({"name": "Breakfast", 
+                                     "description": "How to make breakfast"})
+        response = self.client().post('/recipe_category', 
+                                      data=category_data)
+        response = self.client().delete('/recipe_category/1')
         self.assertEqual(response.status_code, 401)
         self.assertIn('Token is missing', str(response.data))
 
