@@ -10,7 +10,8 @@ class BaseConfig(object):
     DEBUG = False
     CSRF_ENABLED = True
     SECRET_KEY = os.urandom(24)
-    SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
+    # SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
+    SQLALCHEMY_DATABASE_URI = 'postgresql://@localhost/yummy_restapi'
 
 class TestConfig(BaseConfig):
     '''Configurations for Testing, with a separate database'''

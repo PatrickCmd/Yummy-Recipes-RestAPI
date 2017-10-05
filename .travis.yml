@@ -2,6 +2,8 @@ language: python
 python:
   - "3.5"
   - "3.6"
+services:
+  - postgresql
 # command to install app dependencies
 install:
   - pip install -r requirements.txt
