@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask import request, jsonify, abort, make_response
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
+from validate_email import validate_email
 import uuid
 import jwt
 import datetime
@@ -30,8 +31,18 @@ def create_app(config_name):
         data = request.get_json(force=True)
 
         if data:
+            if data['email'] == "" or data['password'] == "" or \
+                data['first_name'] == "" or data['last_name'] == "":
+                return jsonify({'message': 
+                                'All fields must be filled'}), 200
+            if not validate_email(data['email']):
+                return jsonify({'Error': 'Invalid Email'}), 200
+            if len(data['password']) < 6:
+                return jsonify({'Error': 'Password is too short'}), 200
             hashed_password = generate_password_hash(data['password'], 
                                                     method='sha256')
+            if User.query.filter_by(email=data['email']).first():
+                return jsonify({'message': 'User already exists'}), 200
             new_user = User(public_id=str(uuid.uuid4()), email=data['email'], 
                             password=hashed_password, 
                             first_name=data['first_name'], 
@@ -89,6 +100,12 @@ def create_app(config_name):
         data = request.get_json(force=True)
 
         if data:
+            if data['name'] == "" or data["description"] == "":
+                return jsonify({'message': 
+                               'Category name not provided'}), 200
+            if RecipeCategory.query.filter_by(name=data['name']).first():
+                return jsonify({'message': 
+                                'Category already exists'}), 200
             category = RecipeCategory(name=data['name'], 
                                        description=data['description'], 
                                        user_id=current_user.id)
@@ -138,13 +155,31 @@ def create_app(config_name):
     @app.route('/recipe_category/<cat_id>', methods=['PUT'])
     @token_required
     def edit_recipe_category(current_user, cat_id):
-        pass
+        data = request.get_json(force=True)
+        category = RecipeCategory.query.filter_by(id=cat_id, 
+                                                  user_id=\
+                                                  current_user.id).\
+                                                  first()
+        if not category:
+            return jsonify({'message': 'No category found'}), 200
+        category.name = data['name']
+        category.description = data['description']
+        category.save()
+        return jsonify({'message': 'Recipe Category updated'}), 200
+        
     
     # delete recipe category
     @app.route('/recipe_category/<cat_id>', methods=['DELETE'])
     @token_required
     def delete_recipe_category(current_user, cat_id):
-        pass
+        category = RecipeCategory.query.filter_by(id=cat_id, 
+                                                  user_id=\
+                                                  current_user.id).\
+                                                  first()
+        if not category:
+            return jsonify({'message': 'No category found'}), 200
+        category.delete()
+        return jsonify({'message': 'Recipe category deleted'})
 
     @app.route('/auth/login')
     def login():
