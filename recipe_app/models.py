@@ -57,3 +57,17 @@ class RecipeCategory(db.Model):
         self.description = description
         self.user_id = user_id
     
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+    
+    @staticmethod
+    def get_all():
+        return RecipeCategory.query.all()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+    
+    def __repr__(self):
+        return "<Category: {}>". format(self.name)
