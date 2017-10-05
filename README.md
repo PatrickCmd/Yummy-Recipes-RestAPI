@@ -26,7 +26,7 @@ Then install all the necessary dependencies
 pip install -r requirements.txt
 ```
 
-# Initialize the database and create database tables
+## Initialize the database and create database tables
 ```
 $ python manage.py db init
 $ python manage.py db migrate
