@@ -101,7 +101,7 @@ class RecipeAppTestCase(unittest.TestCase):
                                        base64.b64encode(bytes(username + \
                                        ":" + password, 'ascii')).decode('ascii')})
         # getting token after login
-        token = json.loads(response_login.get_data())['token']
+        token = json.loads(response_login.get_data().decode('utf-8'))['token']
         # adding custom 'x-access-token' to request headers
         headers = {"x-access-token": token, 
                    "Content-Type": "application/json"}
