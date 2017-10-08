@@ -77,6 +77,7 @@ def create_app(config_name):
         @wraps(f)
         def decorated(*args, **kwargs):
             token = None
+            print(request.headers)
             if 'x-access-token' in request.headers:
                 token = request.headers['x-access-token']
             
@@ -185,7 +186,6 @@ def create_app(config_name):
     def login():
         '''logs in user into app'''
         auth = request.authorization
-        print(auth)
         if not auth or not auth.username or not auth.password:
             return make_response('Could not verify user' , 401, 
                                   {'WWW-Authenticate': 'Basic realm=\
