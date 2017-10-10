@@ -59,7 +59,7 @@ python run.py
 
 *You could use a GUI platform like [postman](https://www.getpostman.com/) to make requests to and fro the api.*
 
-## Functionality(ENDPOINTS)
+## Functionality(endpoints)
 Endpoint | Functionality| Access
 ------------ | ------------- | ------------- 
 POST /auth/register | Registers a user | PUBLIC

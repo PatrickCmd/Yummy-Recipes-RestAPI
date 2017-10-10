@@ -71,3 +71,43 @@ class RecipeCategory(db.Model):
     
     def __repr__(self):
         return "<Category: {}>". format(self.name)
+
+
+class Recipe(db.Model):
+    '''Class to represent recipe table'''
+
+    __tablename__ = 'recipe'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), unique=True, nullable=False)
+    ingredients = db.Column(db.String(250))
+    description = db.Column(db.Text)
+    cat_id = db.Column(db.Integer, db.ForeignKey('recipe_category.id'), 
+                        nullable=False)
+    user_id = db.Column(db.Integer, nullable=False)
+
+    def __init__(self, name, cat_id, user_id,  ingredients=None, 
+                 description=None):
+        self.name = name
+        self.ingredients = ingredients
+        self.description = description
+        self.cat_id = cat_id
+        self.user_id = user_id
+    
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+    
+    @staticmethod
+    def update():
+        db.session.commit()
+    
+    @staticmethod
+    def get_all():
+        return Recipe.query.all()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+    
+    def __repr__(self):
+        return "<Recipe: {}>". format(self.name)
