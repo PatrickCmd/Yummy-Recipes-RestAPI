@@ -3,7 +3,8 @@
 from flask_api import FlaskAPI
 from flask_sqlalchemy import SQLAlchemy
 from flask import request, jsonify, abort, make_response
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import generate_password_hash, \
+     check_password_hash
 from functools import wraps
 from validate_email import validate_email
 import uuid
@@ -18,7 +19,7 @@ db = SQLAlchemy()
 
 
 def create_app(config_name):
-    from recipe_app.models import User, RecipeCategory
+    from recipe_app.models import User, RecipeCategory, Recipe
 
     app = FlaskAPI(__name__, instance_relative_config=True)
     app.config.from_object(app_config[config_name])
@@ -57,7 +58,6 @@ def create_app(config_name):
     @app.route('/users', methods=['GET'])
     def get_users():
         users = User.get_all()
-        print(users)
         user_list = []
 
         for user in users:
@@ -77,7 +77,6 @@ def create_app(config_name):
         @wraps(f)
         def decorated(*args, **kwargs):
             token = None
-            print(request.headers)
             if 'x-access-token' in request.headers:
                 token = request.headers['x-access-token']
             
@@ -86,7 +85,6 @@ def create_app(config_name):
 
             try:
                 data = jwt.decode(token, app.config['SECRET_KEY'])
-                print(data)
                 current_user = User.query.filter_by(public_id=\
                                             data['public_id']).first()
             except:
@@ -104,7 +102,8 @@ def create_app(config_name):
             if data['name'] == "" or data["description"] == "":
                 return jsonify({'message': 
                                'Category name not provided'}), 200
-            if RecipeCategory.query.filter_by(name=data['name']).first():
+            if RecipeCategory.query.filter_by(name=data['name']).\
+                                              first():
                 return jsonify({'message': 
                                 'Category already exists'}), 200
             category = RecipeCategory(name=data['name'], 
@@ -115,7 +114,8 @@ def create_app(config_name):
             jsonify({'message': 'New recipe category created!'}), 201
         else:
             response = \
-            jsonify({'message': 'New recipe category not created!'}), 201
+            jsonify({'message': 'New recipe category not created!'}), 
+            201
         return response
     
     # user retrieves recipe categories
@@ -145,7 +145,7 @@ def create_app(config_name):
                                                   current_user.id).\
                                                   first()
         if not category:
-            return jsonify({'message': 'No category found'}), 200
+            return jsonify({'message': 'No category found'}), 404
         category_data = {}
         category_data['id'] = category.id
         category_data['name'] = category.name
@@ -162,7 +162,7 @@ def create_app(config_name):
                                                   current_user.id).\
                                                   first()
         if not category:
-            return jsonify({'message': 'No category found'}), 200
+            return jsonify({'message': 'No category found'}), 404
         category.name = data['name']
         category.description = data['description']
         category.save()
@@ -178,9 +178,93 @@ def create_app(config_name):
                                                   current_user.id).\
                                                   first()
         if not category:
-            return jsonify({'message': 'No category found'}), 200
+            return jsonify({'message': 'No category found'}), 404
         category.delete()
         return jsonify({'message': 'Recipe category deleted'})
+
+    # add recipe to category
+    @app.route('/recipe_category/<cat_id>/recipes', methods=['POST'])
+    @token_required
+    def add_recipe(current_user, cat_id):
+        category = RecipeCategory.query.filter_by(id=cat_id, 
+                                                  user_id=\
+                                                  current_user.id).\
+                                                  first()
+        if not category:
+            return jsonify({'message': 'Category not found'}), 404
+        data = request.get_json(force=True)
+        if data:
+            if Recipe.query.filter_by(name=data['name'], 
+                                      user_id=current_user.id).\
+                                      first():
+                return jsonify({'message': 
+                                'Recipe already exists'}), 200
+            recipe = Recipe(name=data['name'], 
+                            cat_id=cat_id, 
+                            user_id=current_user.id,
+                            ingredients=data['ingredients'],
+                            description=data['description'])
+            recipe.save()
+            response = \
+            jsonify({'message': 'New recipe added to category'}), 201
+        else:
+            response = \
+            jsonify({'message': 'New recipe not created!'}), 
+            201
+        return response
+    
+    # view recipes in category
+    @app.route('/recipe_category/<cat_id>/recipes', methods=['GET'])
+    @token_required
+    def get_all_recipes_in_category(current_user, cat_id):
+        '''Returns recipes of current logged in user'''
+        recipes = Recipe.query.filter_by(cat_id=cat_id, user_id=\
+                                         current_user.id).all()
+        recipe_list = []
+        for recipe in recipes:
+            recipe_data = {}
+            recipe_data['id'] = recipe.id
+            recipe_data['cat_id'] = recipe.cat_id
+            recipe_data['user_id'] = recipe.user_id
+            recipe_data['name'] = recipe.name
+            recipe_data['ingredients'] = recipe.ingredients
+            recipe_data['description'] = recipe.description
+            recipe_list.append(recipe_data)
+        return jsonify({'recipes in category': recipe_list}), 200
+    
+    # view single recipe in category
+    @app.route('/recipe_category/<cat_id>/recipes/<recipe_id>', 
+               methods=['GET'])
+    @token_required
+    def get_recipe_single_in_category(current_user, cat_id, recipe_id):
+        recipe = Recipe.query.filter_by(id=recipe_id,
+                                        cat_id=cat_id, 
+                                        user_id=current_user.id).\
+                                        first()
+        if not recipe:
+            return jsonify({'message': 'Recipe not found'}), 404
+        recipe_data = {}
+        recipe_data['id'] = recipe.id
+        recipe_data['cat_id'] = recipe.cat_id
+        recipe_data['user_id'] = recipe.user_id
+        recipe_data['name'] = recipe.name
+        recipe_data['ingredients'] = recipe.ingredients
+        recipe_data['description'] = recipe.description
+        return jsonify(recipe_data), 200
+    
+    # edit single recipe in category
+    @app.route('/recipe_category/<cat_id>/recipes/<recipe_id>', 
+               methods=['PUT'])
+    @token_required
+    def edit_recipe_in_category(current_user, cat_id, recipe_id):
+        pass
+
+    # delete single recipe in category
+    @app.route('/recipe_category/<cat_id>/recipes/<recipe_id>', 
+                methods=['DELETE'])
+    @token_required
+    def delete_recipe_in_category(current_user, cat_id, recipe_id):
+        pass
 
     @app.route('/auth/login')
     def login():
