@@ -24,13 +24,11 @@ class RecipeAppTestCase(unittest.TestCase):
             # create all database tables
             db.create_all()
     
-    def open_with_auth(self, url, method, username, password):
-        return self.app.add_url_rule(url, method=method,
-                                      headers={'Authorization': 
-                                      'Basic ' + \
-                                       base64.b64encode(bytes(username + \
-                                       ":" + password, 'ascii')).
-                                       decode('ascii')})
+    def open_with_auth(self, url, username, password):
+        return self.client().get(url,headers={'Authorization': 
+                                 'Basic ' + base64.b64encode(bytes
+                                  (username + ":" + password, 'ascii')).
+                                   decode('ascii')})
 
     def tearDown(self):
         """teardown all initialized variables."""
@@ -98,12 +96,7 @@ class RecipeAppTestCase(unittest.TestCase):
         username = "pwalukagga@gmail.com" 
         password = "telnetcmd123"
         url = '/auth/login'
-        response_login = self.client().get(url, 
-                                      headers={'Authorization': 
-                                      'Basic ' + \
-                                       base64.b64encode(bytes(username + \
-                                       ":" + password, 'ascii')).
-                                       decode('ascii')})
+        response_login = self.open_with_auth(url, username, password)
         # getting token after login
         token = json.loads(response_login.get_data().
                            decode('utf-8'))['token']
@@ -125,12 +118,7 @@ class RecipeAppTestCase(unittest.TestCase):
         username = "pwalukagga@gmail.com" 
         password = "telnetcmd123"
         url = '/auth/login'
-        response_login = self.client().get(url, 
-                                      headers={'Authorization': 
-                                      'Basic ' + \
-                                       base64.b64encode(bytes(username + \
-                                       ":" + password, 'ascii')).
-                                       decode('ascii')})
+        response_login = self.open_with_auth(url, username, password)
         # getting token after login
         token = json.loads(response_login.get_data().
                            decode('utf-8'))['token']
@@ -155,12 +143,7 @@ class RecipeAppTestCase(unittest.TestCase):
         username = "pwalukagga@gmail.com" 
         password = "telnetcmd123"
         url = '/auth/login'
-        response_login = self.client().get(url, 
-                                      headers={'Authorization': 
-                                      'Basic ' + \
-                                       base64.b64encode(bytes(username + \
-                                       ":" + password, 'ascii')).
-                                       decode('ascii')})
+        response_login = self.open_with_auth(url, username, password)
         # getting token after login
         token = json.loads(response_login.get_data().
                            decode('utf-8'))['token']
@@ -190,12 +173,7 @@ class RecipeAppTestCase(unittest.TestCase):
         username = "pwalukagga@gmail.com" 
         password = "telnetcmd123"
         url = '/auth/login'
-        response_login = self.client().get(url, 
-                                      headers={'Authorization': 
-                                      'Basic ' + \
-                                       base64.b64encode(bytes(username + \
-                                       ":" + password, 'ascii')).
-                                       decode('ascii')})
+        response_login = self.open_with_auth(url, username, password)
         # getting token after login
         token = json.loads(response_login.get_data().
                            decode('utf-8'))['token']
@@ -225,12 +203,7 @@ class RecipeAppTestCase(unittest.TestCase):
         username = "pwalukagga@gmail.com" 
         password = "telnetcmd123"
         url = '/auth/login'
-        response_login = self.client().get(url, 
-                                      headers={'Authorization': 
-                                      'Basic ' + \
-                                       base64.b64encode(bytes(username + \
-                                       ":" + password, 'ascii')).
-                                       decode('ascii')})
+        response_login = self.open_with_auth(url, username, password)
         # getting token after login
         token = json.loads(response_login.get_data().
                            decode('utf-8'))['token']
@@ -257,12 +230,7 @@ class RecipeAppTestCase(unittest.TestCase):
         username = "pwalukagga@gmail.com" 
         password = "telnetcmd123"
         url = '/auth/login'
-        response_login = self.client().get(url, 
-                                      headers={'Authorization': 
-                                      'Basic ' + \
-                                       base64.b64encode(bytes(username + \
-                                       ":" + password, 'ascii')).
-                                       decode('ascii')})
+        response_login = self.open_with_auth(url, username, password)
         # getting token after login
         token = json.loads(response_login.get_data().
                            decode('utf-8'))['token']
@@ -292,12 +260,7 @@ class RecipeAppTestCase(unittest.TestCase):
         username = "pwalukagga@gmail.com" 
         password = "telnetcmd123"
         url = '/auth/login'
-        response_login = self.client().get(url, 
-                                      headers={'Authorization': 
-                                      'Basic ' + \
-                                       base64.b64encode(bytes(username + \
-                                       ":" + password, 'ascii')).
-                                       decode('ascii')})
+        response_login = self.open_with_auth(url, username, password)
         # getting token after login
         token = json.loads(response_login.get_data().
         decode('utf-8'))['token']
@@ -327,12 +290,7 @@ class RecipeAppTestCase(unittest.TestCase):
         username = "pwalukagga@gmail.com" 
         password = "telnetcmd123"
         url = '/auth/login'
-        response_login = self.client().get(url, 
-                                      headers={'Authorization': 
-                                      'Basic ' + \
-                                       base64.b64encode(bytes(username + \
-                                       ":" + password, 'ascii')).
-                                       decode('ascii')})
+        response_login = self.open_with_auth(url, username, password)
         # getting token after login
         token = json.loads(response_login.get_data().
         decode('utf-8'))['token']
@@ -367,12 +325,7 @@ class RecipeAppTestCase(unittest.TestCase):
         username = "pwalukagga@gmail.com" 
         password = "telnetcmd123"
         url = '/auth/login'
-        response_login = self.client().get(url, 
-                                      headers={'Authorization': 
-                                      'Basic ' + \
-                                       base64.b64encode(bytes(username + \
-                                       ":" + password, 'ascii')).
-                                       decode('ascii')})
+        response_login = self.open_with_auth(url, username, password)
         # getting token after login
         token = json.loads(response_login.get_data().
         decode('utf-8'))['token']
@@ -407,12 +360,7 @@ class RecipeAppTestCase(unittest.TestCase):
         username = "pwalukagga@gmail.com" 
         password = "telnetcmd123"
         url = '/auth/login'
-        response_login = self.client().get(url, 
-                                      headers={'Authorization': 
-                                      'Basic ' + \
-                                       base64.b64encode(bytes(username + \
-                                       ":" + password, 'ascii')).
-                                       decode('ascii')})
+        response_login = self.open_with_auth(url, username, password)
         # getting token after login
         token = json.loads(response_login.get_data().
         decode('utf-8'))['token']
@@ -450,12 +398,7 @@ class RecipeAppTestCase(unittest.TestCase):
         username = "pwalukagga@gmail.com" 
         password = "telnetcmd123"
         url = '/auth/login'
-        response_login = self.client().get(url, 
-                                      headers={'Authorization': 
-                                      'Basic ' + \
-                                       base64.b64encode(bytes(username + \
-                                       ":" + password, 'ascii')).
-                                       decode('ascii')})
+        response_login = self.open_with_auth(url, username, password)
         # getting token after login
         token = json.loads(response_login.get_data().
         decode('utf-8'))['token']
@@ -494,17 +437,55 @@ class RecipeAppTestCase(unittest.TestCase):
         self.assertIn('Chicken Buffe', str(response.data))
         self.assertIn('Beef Buffe', str(response.data))
     
+    def test_get_all_recipes_in_category_which_doesnot_exist(self):
+        response = self.client().post('/auth/register', data=self.user)        
+        username = "pwalukagga@gmail.com" 
+        password = "telnetcmd123"
+        url = '/auth/login'
+        response_login = self.open_with_auth(url, username, password)
+        # getting token after login
+        token = json.loads(response_login.get_data().
+        decode('utf-8'))['token']
+        # adding custom 'x-access-token' to request headers
+        headers = {"x-access-token": token, 
+                   "Content-Type": "application/json"}
+        category_data = json.dumps({"name": "Breakfast", 
+                                     "description": 
+                                     "How to make breakfast"})
+        response = self.client().post('/recipe_category', 
+                                      headers=headers,
+                                      data=category_data)
+        category_data = json.dumps({"name": "LunchBuffe", 
+                                     "description": 
+                                     "How to make lunch buffe"})
+        response = self.client().post('/recipe_category', 
+                                      headers=headers,
+                                      data=category_data)
+        recipe_data = json.dumps({"name": "Chicken Buffe", 
+                                  "ingredients": "oil, Onions,\
+                                  Tomatoes",
+                                  "description": "Mix and boil"})
+        response = self.client().post('/recipe_category/2/recipes', 
+                                      headers=headers, 
+                                      data=recipe_data)
+        recipe_data = json.dumps({"name": "Beef Buffe", 
+                                  "ingredients": "oil, Onions,\
+                                  Tomatoes",
+                                  "description": "Mix and boil"})
+        response = self.client().post('/recipe_category/2/recipes', 
+                                      headers=headers, 
+                                      data=recipe_data)
+        response = self.client().get('/recipe_category/5/recipes', 
+                                      headers=headers)
+        self.assertEqual(response.status_code, 404)
+        self.assertIn('Category not found', str(response.data))
+    
     def test_get_single_recipe_in_category(self):
         response = self.client().post('/auth/register', data=self.user)        
         username = "pwalukagga@gmail.com" 
         password = "telnetcmd123"
         url = '/auth/login'
-        response_login = self.client().get(url, 
-                                      headers={'Authorization': 
-                                      'Basic ' + \
-                                       base64.b64encode(bytes(username + \
-                                       ":" + password, 'ascii')).
-                                       decode('ascii')})
+        response_login = self.open_with_auth(url, username, password)
         # getting token after login
         token = json.loads(response_login.get_data().
         decode('utf-8'))['token']
@@ -542,17 +523,12 @@ class RecipeAppTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('Chicken Buffe', str(response.data))
     
-    def test_get_single_recipe_in_category_which_doesnot_edit(self):
+    def test_get_single_recipe_in_recipe_which_doesnot_edit(self):
         response = self.client().post('/auth/register', data=self.user)        
         username = "pwalukagga@gmail.com" 
         password = "telnetcmd123"
         url = '/auth/login'
-        response_login = self.client().get(url, 
-                                      headers={'Authorization': 
-                                      'Basic ' + \
-                                       base64.b64encode(bytes(username + \
-                                       ":" + password, 'ascii')).
-                                       decode('ascii')})
+        response_login = self.open_with_auth(url, username, password)
         # getting token after login
         token = json.loads(response_login.get_data().
         decode('utf-8'))['token']
@@ -586,6 +562,187 @@ class RecipeAppTestCase(unittest.TestCase):
                                       headers=headers, 
                                       data=recipe_data)
         response = self.client().get('/recipe_category/2/recipes/4', 
+                                      headers=headers)
+        self.assertEqual(response.status_code, 404)
+        self.assertIn('Recipe not found', str(response.data))
+    
+    def test_get_single_recipe_in_category_which_doesnot_edit(self):
+        response = self.client().post('/auth/register', data=self.user)        
+        username = "pwalukagga@gmail.com" 
+        password = "telnetcmd123"
+        url = '/auth/login'
+        response_login = self.open_with_auth(url, username, password)
+        # getting token after login
+        token = json.loads(response_login.get_data().
+        decode('utf-8'))['token']
+        # adding custom 'x-access-token' to request headers
+        headers = {"x-access-token": token, 
+                   "Content-Type": "application/json"}
+        category_data = json.dumps({"name": "Breakfast", 
+                                     "description": 
+                                     "How to make breakfast"})
+        response = self.client().post('/recipe_category', 
+                                      headers=headers,
+                                      data=category_data)
+        category_data = json.dumps({"name": "LunchBuffe", 
+                                     "description": 
+                                     "How to make lunch buffe"})
+        response = self.client().post('/recipe_category', 
+                                      headers=headers,
+                                      data=category_data)
+        recipe_data = json.dumps({"name": "Chicken Buffe", 
+                                  "ingredients": "oil, Onions,\
+                                  Tomatoes",
+                                  "description": "Mix and boil"})
+        response = self.client().post('/recipe_category/2/recipes', 
+                                      headers=headers, 
+                                      data=recipe_data)
+        recipe_data = json.dumps({"name": "Beef Buffe", 
+                                  "ingredients": "oil, Onions,\
+                                  Tomatoes",
+                                  "description": "Mix and boil"})
+        response = self.client().post('/recipe_category/2/recipes', 
+                                      headers=headers, 
+                                      data=recipe_data)
+        response = self.client().get('/recipe_category/5/recipes/4', 
+                                      headers=headers)
+        self.assertEqual(response.status_code, 404)
+        self.assertIn('Category not found', str(response.data))
+    
+    def test_edit_recipe_in_category(self):
+        response = self.client().post('/auth/register', data=self.user)        
+        username = "pwalukagga@gmail.com" 
+        password = "telnetcmd123"
+        url = '/auth/login'
+        response_login = self.open_with_auth(url, username, password)
+        # getting token after login
+        token = json.loads(response_login.get_data().
+        decode('utf-8'))['token']
+        # adding custom 'x-access-token' to request headers
+        headers = {"x-access-token": token, 
+                   "Content-Type": "application/json"}
+        category_data = json.dumps({"name": "Breakfast", 
+                                     "description": 
+                                     "How to make breakfast"})
+        response = self.client().post('/recipe_category', 
+                                      headers=headers,
+                                      data=category_data)
+        category_data = json.dumps({"name": "LunchBuffe", 
+                                     "description": 
+                                     "How to make lunch buffe"})
+        response = self.client().post('/recipe_category', 
+                                      headers=headers,
+                                      data=category_data)
+        recipe_data = json.dumps({"name": "Chicken Buffe", 
+                                  "ingredients": "oil, Onions,\
+                                  Tomatoes",
+                                  "description": "Mix and boil"})
+        response = self.client().post('/recipe_category/2/recipes', 
+                                      headers=headers, 
+                                      data=recipe_data)
+        recipe_data = json.dumps({"name": "Beef Buffe", 
+                                  "ingredients": "oil, Onions,\
+                                  Tomatoes",
+                                  "description": "Mix and boil"})
+        response = self.client().post('/recipe_category/2/recipes', 
+                                      headers=headers, 
+                                      data=recipe_data)
+        recipe_data = json.dumps({"name": "Chicken Buffes", 
+                                  "ingredients": "oil, Onions,\
+                                  Tomatoes, Vegetables",
+                                  "description": "Mix and boil"})
+        response = self.client().put('/recipe_category/2/recipes/1', 
+                                      headers=headers, 
+                                      data=recipe_data)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Recipe has been updated', str(response.data))
+        response = self.client().get('/recipe_category/2/recipes/1', 
+                                      headers=headers)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Chicken Buffes', str(response.data))
+    
+    def test_delete_recipe_from_category(self):
+        response = self.client().post('/auth/register', data=self.user)        
+        username = "pwalukagga@gmail.com" 
+        password = "telnetcmd123"
+        url = '/auth/login'
+        response_login = self.open_with_auth(url, username, password)
+        # getting token after login
+        token = json.loads(response_login.get_data().
+        decode('utf-8'))['token']
+        # adding custom 'x-access-token' to request headers
+        headers = {"x-access-token": token, 
+                   "Content-Type": "application/json"}
+        category_data = json.dumps({"name": "Breakfast", 
+                                     "description": 
+                                     "How to make breakfast"})
+        response = self.client().post('/recipe_category', 
+                                      headers=headers,
+                                      data=category_data)
+        category_data = json.dumps({"name": "LunchBuffe", 
+                                     "description": 
+                                     "How to make lunch buffe"})
+        response = self.client().post('/recipe_category', 
+                                      headers=headers,
+                                      data=category_data)
+        recipe_data = json.dumps({"name": "Chicken Buffe", 
+                                  "ingredients": "oil, Onions,\
+                                  Tomatoes",
+                                  "description": "Mix and boil"})
+        response = self.client().post('/recipe_category/2/recipes', 
+                                      headers=headers, 
+                                      data=recipe_data)
+        recipe_data = json.dumps({"name": "Beef Buffe", 
+                                  "ingredients": "oil, Onions,\
+                                  Tomatoes",
+                                  "description": "Mix and boil"})
+        response = self.client().post('/recipe_category/2/recipes', 
+                                      headers=headers, 
+                                      data=recipe_data)
+        response = self.client().delete('/recipe_category/2/recipes/2', 
+                                      headers=headers)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Recipe item deleted', str(response.data))
+    
+    def test_delete_recipe_which_doesnot_exist(self):
+        response = self.client().post('/auth/register', data=self.user)        
+        username = "pwalukagga@gmail.com" 
+        password = "telnetcmd123"
+        url = '/auth/login'
+        response_login = self.open_with_auth(url, username, password)
+        # getting token after login
+        token = json.loads(response_login.get_data().
+        decode('utf-8'))['token']
+        # adding custom 'x-access-token' to request headers
+        headers = {"x-access-token": token, 
+                   "Content-Type": "application/json"}
+        category_data = json.dumps({"name": "Breakfast", 
+                                     "description": 
+                                     "How to make breakfast"})
+        response = self.client().post('/recipe_category', 
+                                      headers=headers,
+                                      data=category_data)
+        category_data = json.dumps({"name": "LunchBuffe", 
+                                     "description": 
+                                     "How to make lunch buffe"})
+        response = self.client().post('/recipe_category', 
+                                      headers=headers,
+                                      data=category_data)
+        recipe_data = json.dumps({"name": "Chicken Buffe", 
+                                  "ingredients": "oil, Onions,\
+                                  Tomatoes",
+                                  "description": "Mix and boil"})
+        response = self.client().post('/recipe_category/2/recipes', 
+                                      headers=headers, 
+                                      data=recipe_data)
+        recipe_data = json.dumps({"name": "Beef Buffe", 
+                                  "ingredients": "oil, Onions,\
+                                  Tomatoes",
+                                  "description": "Mix and boil"})
+        response = self.client().post('/recipe_category/2/recipes', 
+                                      headers=headers, 
+                                      data=recipe_data)
+        response = self.client().delete('/recipe_category/2/recipes/3', 
                                       headers=headers)
         self.assertEqual(response.status_code, 404)
         self.assertIn('Recipe not found', str(response.data))
