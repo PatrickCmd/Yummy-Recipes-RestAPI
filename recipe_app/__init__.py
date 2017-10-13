@@ -217,6 +217,12 @@ def create_app(config_name):
     @app.route('/recipe_category/<cat_id>/recipes', methods=['GET'])
     @token_required
     def get_all_recipes_in_category(current_user, cat_id):
+        category = RecipeCategory.query.filter_by(id=cat_id, 
+                                                  user_id=\
+                                                  current_user.id).\
+                                                  first()
+        if not category:
+            return jsonify({'message': 'Category not found'}), 404
         '''Returns recipes of current logged in user'''
         recipes = Recipe.query.filter_by(cat_id=cat_id, user_id=\
                                          current_user.id).all()
@@ -237,6 +243,12 @@ def create_app(config_name):
                methods=['GET'])
     @token_required
     def get_recipe_single_in_category(current_user, cat_id, recipe_id):
+        category = RecipeCategory.query.filter_by(id=cat_id, 
+                                                  user_id=\
+                                                  current_user.id).\
+                                                  first()
+        if not category:
+            return jsonify({'message': 'Category not found'}), 404
         recipe = Recipe.query.filter_by(id=recipe_id,
                                         cat_id=cat_id, 
                                         user_id=current_user.id).\
@@ -257,14 +269,32 @@ def create_app(config_name):
                methods=['PUT'])
     @token_required
     def edit_recipe_in_category(current_user, cat_id, recipe_id):
-        pass
+        data = request.get_json(force=True)
+        recipe = Recipe.query.filter_by(id=recipe_id,
+                                        cat_id=cat_id, 
+                                        user_id=current_user.id).\
+                                        first()
+        if not recipe:
+            return jsonify({'message': 'Recipe not found'}), 404
+        recipe.name = data['name']
+        recipe.ingredients = data['ingredients']
+        recipe.description = data['description']
+        recipe.save()
+        return jsonify({'message': 'Recipe has been updated'}), 200
 
     # delete single recipe in category
     @app.route('/recipe_category/<cat_id>/recipes/<recipe_id>', 
                 methods=['DELETE'])
     @token_required
-    def delete_recipe_in_category(current_user, cat_id, recipe_id):
-        pass
+    def delete_recipe_from_category(current_user, cat_id, recipe_id):
+        recipe = Recipe.query.filter_by(id=recipe_id,
+                                        cat_id=cat_id, 
+                                        user_id=current_user.id).\
+                                        first()
+        if not recipe:
+            return jsonify({'message': 'Recipe not found'}), 404
+        recipe.delete()
+        return jsonify({'message': 'Recipe item deleted'}), 200
 
     @app.route('/auth/login')
     def login():
