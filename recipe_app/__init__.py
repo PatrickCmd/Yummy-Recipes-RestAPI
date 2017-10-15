@@ -126,6 +126,13 @@ def create_app(config_name):
         categories = RecipeCategory.query.\
                                          filter_by(user_id=\
                                          current_user.id).all()
+        # pagination
+        limit = request.args.get('limit', 0)
+        if limit:
+            limit = int(limit)
+            # offset = int(request.args.get('offset', 0))
+            categories = RecipeCategory.get_all_limit_offset(
+                                        current_user.id, limit)
         category_list = []
         for category in categories:
             category_data = {}
@@ -226,6 +233,14 @@ def create_app(config_name):
         '''Returns recipes of current logged in user'''
         recipes = Recipe.query.filter_by(cat_id=cat_id, user_id=\
                                          current_user.id).all()
+        # pagination
+        limit = request.args.get('limit', 0)
+        if limit:
+            limit = int(limit)
+            # offset = int(request.args.get('offset', 0))
+            recipes = Recipe.get_all_limit_offset(cat_id,
+                                                  current_user.id, 
+                                                  limit)
         recipe_list = []
         for recipe in recipes:
             recipe_data = {}

@@ -65,6 +65,11 @@ class RecipeCategory(db.Model):
     def get_all():
         return RecipeCategory.query.all()
 
+    @staticmethod
+    def get_all_limit_offset(userid, lim):
+        return RecipeCategory.query.filter_by(user_id=\
+                                              userid).limit(lim).all()
+
     def delete(self):
         db.session.delete(self)
         db.session.commit()
@@ -104,6 +109,11 @@ class Recipe(db.Model):
     @staticmethod
     def get_all():
         return Recipe.query.all()
+
+    @staticmethod
+    def get_all_limit_offset(catid, userid, lim):
+        return Recipe.query.filter_by(cat_id=catid, user_id=\
+                                      userid).limit(lim).all()
 
     def delete(self):
         db.session.delete(self)
