@@ -69,6 +69,9 @@ GET /recipe_category | Lists all created recipe categories | PRIVATE
 GET /recipe_category/id | Gets a single recipe category with the suppled id | PRIVATE
 PUT /recipe_category/id | Updates recipe category with the suppled id | PRIVATE
 DELETE /recipe_category/id | Deletes recipe_category with the suppled id | PRIVATE
+POST /recipe_category/id/recipe | Creates a new recipe in recipe category | PRIVATE
+PUT /recipe_category/id/recipe/recipe_id | Updates a recipe item | PRIVATE
+DELETE /recipe_category/id/recipe/recipe_id | Deletes an recipe in a recipe category | PRIVATE
 
 To run tests run this command at the console/terminal
 ```
