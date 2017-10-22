@@ -27,11 +27,21 @@ def create_app(config_name):
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
 
+    # method to check for special characters and validate a name
+    def is_valid(name_string):
+        special_character = "~!@#$%^&*()_={}|\[]<>?/,;:"
+        return any(char in special_character for char in name_string)    
+
     @app.route('/auth/register', methods=['POST'])
     def register():
         data = request.get_json(force=True)
 
         if data:
+            if is_valid(data['first_name']) or \
+                is_valid(data['last_name']):
+                return jsonify({'message': 
+                               'Name must not contain any special \
+                               character'}), 200
             if data['email'] == "" or data['password'] == "" or \
                 data['first_name'] == "" or data['last_name'] == "":
                 return jsonify({'message': 
@@ -128,11 +138,15 @@ def create_app(config_name):
                                          current_user.id).all()
         # pagination
         limit = request.args.get('limit', 0)
+        search = request.args.get('q', "")
         if limit:
             limit = int(limit)
             # offset = int(request.args.get('offset', 0))
             categories = RecipeCategory.get_all_limit_offset(
                                         current_user.id, limit)
+        if search:
+            categories = [category for category in categories if 
+                          category.name == search]
         category_list = []
         for category in categories:
             category_data = {}

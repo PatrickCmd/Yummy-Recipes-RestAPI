@@ -13,15 +13,18 @@ class BaseConfig(object):
     # SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
     SQLALCHEMY_DATABASE_URI = 'postgresql://@localhost/yummy_restapi'
 
+
 class TestConfig(BaseConfig):
     '''Configurations for Testing, with a separate database'''
     DEBUG = True
     TESTING = True
     SQLALCHEMY_DATABASE_URI = 'sqlite:///memory' # memory sqlite database
 
+
 class DevelopmentConfig(BaseConfig):
     '''Configurations for development'''
     DEBUG = True
+
 
 class ProductionConfig(BaseConfig):
     '''Configurations for production'''
