@@ -99,3 +99,9 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+desc_flassger.txt
+flassger.txt
+
+# swagger docs
+recipe_app/docs/

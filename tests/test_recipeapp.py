@@ -61,8 +61,8 @@ class RecipeAppTestCase(unittest.TestCase):
                            "password": "telnet123"})
         response = self.client().post('/auth/register', data=user)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('Name must not contain any special \
-                               character', str(response.data))
+        self.assertIn('Name contains special character', 
+                      str(response.data))
     
     def test_user_registration_fails_with_short_password(self):
         '''Test API can register user (POST request)'''
@@ -92,7 +92,7 @@ class RecipeAppTestCase(unittest.TestCase):
                            "email": "pwalukagga@gmail.com",
                            "password": "telnetcmd123"})
         response = self.client().post('/auth/register', data=user)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 202)
         self.assertIn('User already exists', str(response.data))
     
     def test_get_users(self):
@@ -101,8 +101,53 @@ class RecipeAppTestCase(unittest.TestCase):
         response = self.client().get('/users')
         self.assertEqual(response.status_code, 200)
     
+    def test_logout_user(self):
+        response = self.client().post('/auth/register', data=self.user)        
+        username = "pwalukagga@gmail.com" 
+        password = "telnetcmd123"
+        url = '/auth/login'
+        response_login = self.open_with_auth(url, username, password)
+        # getting token after login
+        token = json.loads(response_login.get_data().
+                           decode('utf-8'))['token']
+        # adding custom 'x-access-token' to request headers
+        headers = {"x-access-token": token, 
+                   "Content-Type": "application/json"}
+        response = self.client().post('/auth/logout', 
+                                      headers=headers)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("User has logged out successfully", 
+                      str(response.data))
+    
     
     def test_user_creates_recipe_category(self):
+        response = self.client().post('/auth/register', data=self.user)        
+        username = "pwalukagga@gmail.com" 
+        password = "telnetcmd123"
+        url = '/auth/login'
+        response_login = self.open_with_auth(url, username, password)
+        # getting token after login
+        token = json.loads(response_login.get_data().
+                           decode('utf-8'))['token']
+        # adding custom 'x-access-token' to request headers
+        headers = {"x-access-token": token, 
+                   "Content-Type": "application/json"}
+        category_data = json.dumps({"name": "Breakfast", 
+                                     "description": 
+                                     "How to make breakfast"})
+        response = self.client().post('/auth/logout', 
+                                      headers=headers)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("User has logged out successfully", 
+                      str(response.data))
+        response = self.client().post('/recipe_category', 
+                                      headers=headers,
+                                      data=category_data)
+        self.assertEqual(response.status_code, 401)
+        self.assertIn('Token blacklisted. Please log in again.', 
+                       str(response.data))
+    
+    def test_try_create_recipe_category_when_logged_out(self):
         response = self.client().post('/auth/register', data=self.user)        
         username = "pwalukagga@gmail.com" 
         password = "telnetcmd123"
