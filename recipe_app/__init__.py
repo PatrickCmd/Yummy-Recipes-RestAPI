@@ -2,7 +2,7 @@
 
 from flask_api import FlaskAPI
 from flask_sqlalchemy import SQLAlchemy
-from flask import request, jsonify, abort, make_response
+from flask import request, jsonify, abort, make_response, Response, redirect
 from werkzeug.security import generate_password_hash, \
      check_password_hash
 from functools import wraps
@@ -19,13 +19,20 @@ db = SQLAlchemy()
 
 
 def create_app(config_name):
-    from recipe_app.models import User, RecipeCategory, Recipe
+    from recipe_app.models import (User, RecipeCategory, Recipe, 
+                                   BlacklistToken)
 
     app = FlaskAPI(__name__, instance_relative_config=True)
     app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
     db.init_app(app)
+
+    @app.route('/')
+    @app.route('/index')
+    def index():
+        return redirect('/apidocs/')
 
     # method to check for special characters and validate a name
     def is_valid(name_string):
@@ -38,10 +45,9 @@ def create_app(config_name):
 
         if data:
             if is_valid(data['first_name']) or \
-                is_valid(data['last_name']):
+                        is_valid(data['last_name']):
                 return jsonify({'message': 
-                               'Name must not contain any special \
-                               character'}), 200
+                               'Name contains special characters'}),200
             if data['email'] == "" or data['password'] == "" or \
                 data['first_name'] == "" or data['last_name'] == "":
                 return jsonify({'message': 
@@ -53,7 +59,7 @@ def create_app(config_name):
             hashed_password = generate_password_hash(data['password'], 
                                                     method='sha256')
             if User.query.filter_by(email=data['email']).first():
-                return jsonify({'message': 'User already exists'}), 200
+                return jsonify({'message': 'User already exists'}), 202
             new_user = User(public_id=str(uuid.uuid4()), email=data['email'], 
                             password=hashed_password, 
                             first_name=data['first_name'], 
@@ -106,27 +112,44 @@ def create_app(config_name):
     @app.route('/recipe_category', methods=['POST'])
     @token_required
     def create_category(current_user):
-        data = request.get_json(force=True)
+        auth_token = request.headers['x-access-token']
+        if auth_token:
+            resp = current_user.decode_auth_token(auth_token, 
+                                          app.config['SECRET_KEY'])
+            if not isinstance(resp, str): 
+                data = request.get_json(force=True)
 
-        if data:
-            if data['name'] == "" or data["description"] == "":
-                return jsonify({'message': 
-                               'Category name not provided'}), 200
-            if RecipeCategory.query.filter_by(name=data['name']).\
-                                              first():
-                return jsonify({'message': 
-                                'Category already exists'}), 200
-            category = RecipeCategory(name=data['name'], 
-                                       description=data['description'], 
-                                       user_id=current_user.id)
-            category.save()
-            response = \
-            jsonify({'message': 'New recipe category created!'}), 201
+                if data:
+                    if data['name'] == "" or data["description"] == "":
+                        return jsonify({'message': 
+                                    'Category name not provided'}), 200
+                    if RecipeCategory.query.filter_by(name=data['name']).\
+                                                    first():
+                        return jsonify({'message': 
+                                        'Category already exists'}), 200
+                    category = RecipeCategory(name=data['name'], 
+                                            description=data['description'], 
+                                            user_id=current_user.id)
+                    category.save()
+                    response = \
+                    jsonify({'message': 'New recipe category created!'}), 201
+                else:
+                    response = \
+                    jsonify({'message': 'New recipe category not created!'}), 
+                    201
+                return response
+            else:
+                responseObject = {
+                        'status': 'fail',
+                        'message': resp
+                    }
+                return make_response(jsonify(responseObject)), 401
         else:
-            response = \
-            jsonify({'message': 'New recipe category not created!'}), 
-            201
-        return response
+            responseObject = {
+                'status': 'fail',
+                'message': 'Provide a valid auth token.'
+            }
+            return make_response(jsonify(responseObject)), 403
     
     # user retrieves recipe categories
     @app.route('/recipe_category', methods=['GET'])
@@ -325,6 +348,46 @@ def create_app(config_name):
         recipe.delete()
         return jsonify({'message': 'Recipe item deleted'}), 200
 
+    # user logs out
+    @app.route('/auth/logout', methods=['POST'])
+    @token_required
+    def logout(current_user):
+        auth_token = request.headers['x-access-token']
+        if auth_token:
+            resp = current_user.decode_auth_token(auth_token, 
+                                          app.config['SECRET_KEY'])
+            if not isinstance(resp, str):
+                # mark the token as blacklisted
+                blacklist_token = BlacklistToken(token=auth_token)
+                try:
+                    # insert the token
+                    db.session.add(blacklist_token)
+                    db.session.commit()
+                    responseObject = {
+                        'status': 'success',
+                        'message': 'User has logged out successfully.'
+                    }
+                    return make_response(jsonify(responseObject)), 200
+                except Exception as e:
+                    responseObject = {
+                        'status': 'fail',
+                        'message': e
+                    }
+                    return make_response(jsonify(responseObject)), 200
+            else:
+                responseObject = {
+                    'status': 'fail',
+                    'message': resp
+                }
+                return make_response(jsonify(responseObject)), 401
+        else:
+            responseObject = {
+                'status': 'fail',
+                'message': 'Provide a valid auth token.'
+            }
+            return make_response(jsonify(responseObject)), 403
+
+
     @app.route('/auth/login')
     def login():
         '''logs in user into app'''
@@ -342,7 +405,8 @@ def create_app(config_name):
 
         if check_password_hash(user.password, auth.password):
             # generating tokens
-            token = jwt.encode({'public_id': user.public_id, 
+            token = jwt.encode({'public_id': user.public_id,
+                                'user_id':user.id, 
                                 'exp': datetime.datetime.utcnow()+
                                 datetime.timedelta(minutes=30)}, 
                                 app.config['SECRET_KEY'])
